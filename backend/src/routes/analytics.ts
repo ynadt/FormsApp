@@ -73,7 +73,7 @@ router.get(
             .filter((v) => !isNaN(v));
           const avg =
             numericAnswers.length > 0
-              ? numericAnswers.reduce((a, b) => a + b, 0) /
+              ? numericAnswers.reduce((a: number, b: number) => a + b, 0) /
                 numericAnswers.length
               : 0;
           aggregatedData = { average: avg, count: numericAnswers.length };
