@@ -24,13 +24,13 @@ router.get(
               {
                 email: {
                   startsWith: search,
-                  mode: Prisma.QueryMode.insensitive,
+                  mode: 'insensitive' as Prisma.QueryMode,
                 },
               },
               {
                 name: {
                   startsWith: search,
-                  mode: Prisma.QueryMode.insensitive,
+                  mode: 'insensitive' as Prisma.QueryMode,
                 },
               },
             ],
