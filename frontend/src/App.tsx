@@ -19,6 +19,7 @@ import FormViewPage from './pages/FormViewPage.tsx';
 import AdminFormsPage from './pages/AdminFormsPage.tsx';
 import MyFormsPage from './pages/MyFormsPage.tsx';
 import SearchResultsPage from './pages/SearchResultsPage.tsx';
+import NotFoundPage from './pages/NotFoundPage.tsx';
 
 const AppContent: React.FC = () => {
   const { mode } = useThemeCustom();
@@ -117,6 +118,7 @@ const AppContent: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
           <ToastContainer
             position="bottom-right"
