@@ -7,7 +7,10 @@ import {
   Paper,
   ToggleButton,
   ToggleButtonGroup,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { loginUser, registerUser } from '../api/auth';
@@ -20,8 +23,38 @@ export const AuthPage: FC = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const { setUser } = useAuthStore();
   const navigate = useNavigate();
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string): boolean => {
+    return password.length >= 6;
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!validateEmail(email)) {
+      setAuthError('Please enter a valid email address.');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setAuthError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (mode === 'login') {
+      loginMutation.mutate({ email, password });
+    } else {
+      registerMutation.mutate({ email, password, name });
+    }
+  };
 
   const loginMutation: UseMutationResult<
     AuthResponse,
@@ -67,15 +100,6 @@ export const AuthPage: FC = () => {
       setAuthError(error.message || 'Registration failed'),
   });
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (mode === 'login') {
-      loginMutation.mutate({ email, password });
-    } else {
-      registerMutation.mutate({ email, password, name });
-    }
-  };
-
   return (
     <Box sx={{ maxWidth: 400, margin: 'auto', mt: 8 }}>
       <Paper sx={{ p: 4 }}>
@@ -101,6 +125,7 @@ export const AuthPage: FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               sx={{ mb: 2 }}
+              autoComplete="name"
             />
           )}
           <TextField
@@ -111,15 +136,33 @@ export const AuthPage: FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             sx={{ mb: 2 }}
+            autoComplete="email"
           />
           <TextField
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             fullWidth
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             sx={{ mb: 2 }}
+            autoComplete={
+              mode === 'login' ? 'current-password' : 'new-password'
+            }
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
           {authError && (
             <Typography color="error" sx={{ mb: 2 }}>

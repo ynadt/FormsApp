@@ -297,7 +297,7 @@ router.post(
         },
       };
       if (data.topicId) {
-        createData.topic = { connect: { id: data.topicId } };
+        createData.topicId = data.topicId;
       }
       if (data.tags && data.tags.length > 0) {
         createData.tags = {
