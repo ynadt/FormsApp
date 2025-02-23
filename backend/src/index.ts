@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
+
 import authRoutes from './routes/auth';
 import analyticsRoutes from './routes/analytics';
 import formsRoutes from './routes/forms';
@@ -20,7 +21,14 @@ import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
+app.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -39,5 +47,7 @@ app.use('/users', usersRoutes);
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
