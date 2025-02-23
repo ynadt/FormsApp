@@ -18,24 +18,23 @@ router.get(
         return;
       }
 
-      const whereClause = search
-        ? {
-            OR: [
-              {
-                email: {
-                  startsWith: search,
-                  mode: 'insensitive' as Prisma.QueryMode,
-                },
-              },
-              {
-                name: {
-                  startsWith: search,
-                  mode: 'insensitive' as Prisma.QueryMode,
-                },
-              },
-            ],
-          }
-        : {};
+      const whereClause: Prisma.UserWhereInput = {
+        OR: [
+          {
+            email: {
+              startsWith: search,
+              mode: 'insensitive' as Prisma.QueryMode,
+            },
+          },
+          {
+            name: {
+              startsWith: search,
+              mode: 'insensitive' as Prisma.QueryMode,
+            },
+          },
+        ],
+      };
+
       const users = await prisma.user.findMany({
         where: whereClause,
         select: {
