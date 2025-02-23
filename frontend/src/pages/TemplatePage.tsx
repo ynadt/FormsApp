@@ -28,7 +28,7 @@ import {
 import { fetchTopics } from '../api/topics';
 import { fetchUsersAutocomplete } from '../api/users';
 import { fetchTags } from '../api/tags';
-import debounce from 'lodash/debounce';
+import debounce from 'lodash.debounce';
 import { useAuthStore } from '../store/authStore';
 import ImageUploader from '../components/ImageUploader.tsx';
 import QuestionManager from '../components/QuestionManager.tsx';
