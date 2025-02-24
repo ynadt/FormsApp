@@ -3,6 +3,10 @@ import { Box, Button, Typography } from '@mui/material';
 import { toast } from 'react-toastify';
 import supabase from '../supabase';
 import DropZone from './DropZone';
+import {
+  MAX_FILE_SIZE_MB,
+  MAX_FILE_SIZE_UPLOAD,
+} from '../constants/constants.ts';
 
 interface ImageUploaderProps {
   initialImageUrl?: string;
@@ -21,6 +25,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [uploading, setUploading] = useState(false);
 
   const handleFileUpload = async (file: File): Promise<string> => {
+    if (file.size > MAX_FILE_SIZE_UPLOAD) {
+      toast.error('Image size exceeds 50 MB limit.');
+      throw new Error('File size too large');
+    }
     setUploading(true);
     const filePath = `templates/${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
@@ -43,6 +51,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     if (e.target.files && e.target.files[0]) {
       try {
         const file = e.target.files[0];
+        if (file.size > MAX_FILE_SIZE_UPLOAD) {
+          toast.error(`Image size exceeds ${MAX_FILE_SIZE_MB} MB limit.`);
+          return;
+        }
         await handleFileUpload(file);
       } catch (error: any) {
         toast.error(error.message);
@@ -91,7 +103,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       ) : (
         <DropZone onFileDrop={handleFileUpload}>
           <Typography variant="body1" sx={{ mb: 1 }}>
-            Drag and drop an image here, or click to upload.
+            Drag and drop an image here, or click to upload. Max size:{' '}
+            {MAX_FILE_SIZE_MB} MB.
           </Typography>
           <Button variant="outlined" component="label">
             {uploading ? 'Uploading…' : 'Upload Image'}

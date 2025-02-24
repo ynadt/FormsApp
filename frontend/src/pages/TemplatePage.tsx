@@ -407,10 +407,12 @@ const TemplatePage: React.FC = () => {
               />
             )}
 
-            <Typography variant="body2" color="error" marginY={2}>
-              * Warning: Changing questions (except reordering) will delete all
-              previously submitted forms for this template.
-            </Typography>
+            {isEditMode && (
+              <Typography variant="body2" color="error" marginY={2}>
+                * Warning: Changing questions (except reordering) will delete
+                all previously submitted forms for this template.
+              </Typography>
+            )}
 
             <QuestionManager
               questions={formData.questions}
