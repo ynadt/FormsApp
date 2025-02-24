@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import prisma from '../prisma';
-import { z } from 'zod';
 import { requireAuth } from '../middlewares/authMiddleware';
 import APIError from '../utils/APIError';
+import { commentSchema } from '../validators/commentsValidation';
 
 const router = Router();
 
@@ -24,7 +24,6 @@ router.get(
   },
 );
 
-const commentSchema = z.object({ text: z.string().min(1) });
 router.post(
   '/:templateId',
   requireAuth,

@@ -1,10 +1,14 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import prisma from '../prisma';
-import { z } from 'zod';
 import { requireAuth } from '../middlewares/authMiddleware';
 import APIError from '../utils/APIError';
 import { DEFAULT_LIMIT } from '../constants';
 import supabase from '../supabase';
+import {
+  bulkDeleteSchema,
+  formSchema,
+  updateFormSchema,
+} from '../validators/formsValidation';
 
 const router = Router();
 
@@ -185,10 +189,6 @@ router.get(
   },
 );
 
-const bulkDeleteSchema = z.object({
-  ids: z.array(z.string()),
-});
-
 router.delete(
   '/',
   requireAuth,
@@ -257,11 +257,6 @@ router.get(
   },
 );
 
-const formSchema = z.object({
-  templateId: z.string(),
-  answers: z.record(z.string().optional()),
-});
-
 router.post(
   '/',
   requireAuth,
@@ -308,11 +303,6 @@ router.post(
     }
   },
 );
-
-const updateFormSchema = z.object({
-  answers: z.record(z.string().optional()),
-  version: z.number(),
-});
 
 router.put(
   '/:id',

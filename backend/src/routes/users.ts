@@ -1,9 +1,13 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import prisma from '../prisma';
-import { z } from 'zod';
 import APIError from '../utils/APIError';
 import { requireAuth, adminOnly } from '../middlewares/authMiddleware';
 import supabase from '../supabase';
+import {
+  bulkBlockSchema,
+  bulkUpdateRoleSchema,
+} from '../validators/usersValidation';
+import { bulkDeleteSchema } from '../validators/formsValidation';
 
 const router = Router();
 const DEFAULT_LIMIT = 10;
@@ -46,10 +50,6 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-const bulkUpdateRoleSchema = z.object({
-  ids: z.array(z.string()),
-  role: z.enum(['ADMIN', 'USER']),
-});
 router.put(
   '/update-role',
   async (req: Request, res: Response, next: NextFunction) => {
@@ -76,10 +76,6 @@ router.put(
   },
 );
 
-const bulkBlockSchema = z.object({
-  ids: z.array(z.string()),
-  blocked: z.boolean(),
-});
 router.put(
   '/block',
   async (req: Request, res: Response, next: NextFunction) => {
@@ -112,9 +108,6 @@ router.put(
   },
 );
 
-const bulkDeleteSchema = z.object({
-  ids: z.array(z.string()),
-});
 router.delete('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validation = bulkDeleteSchema.safeParse(req.body);

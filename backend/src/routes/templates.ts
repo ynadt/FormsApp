@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import prisma from '../prisma';
-import { z } from 'zod';
 import APIError from '../utils/APIError';
 import { requireAuth } from '../middlewares/authMiddleware';
 import { DEFAULT_LIMIT } from '../constants';
@@ -13,6 +12,11 @@ import {
   updateTemplateTags,
 } from '../utils/templateUtils';
 import supabase from '../supabase';
+import {
+  bulkDeleteSchema,
+  templateCreateSchema,
+  templateUpdateSchema,
+} from '../validators/templatesValidation';
 
 const router = Router();
 
@@ -192,9 +196,6 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-const bulkDeleteSchema = z.object({
-  ids: z.array(z.string()),
-});
 router.delete(
   '/',
   requireAuth,
@@ -240,29 +241,6 @@ router.delete(
     }
   },
 );
-
-const templateCreateSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional(),
-  image_url: z.preprocess(
-    (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
-    z.string().url().optional(),
-  ),
-  public: z.boolean().default(true),
-  topicId: z.string().optional(),
-  questions: z.array(
-    z.object({
-      type: z.enum(['SINGLE_LINE', 'MULTI_LINE', 'INTEGER', 'CHECKBOX']),
-      title: z.string().min(1),
-      description: z.string().optional(),
-      required: z.boolean(),
-      showInResults: z.boolean(),
-      order: z.number().optional(),
-    }),
-  ),
-  tags: z.array(z.string()),
-  templateAccesses: z.array(z.object({ userId: z.string() })).optional(),
-});
 
 router.post(
   '/',
@@ -328,39 +306,6 @@ router.post(
     }
   },
 );
-
-const templateUpdateSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional(),
-  image_url: z.preprocess(
-    (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
-    z.string().url().optional(),
-  ),
-  public: z.boolean().optional(),
-  topicId: z.string().optional(),
-  tags: z.array(z.string()),
-  version: z.number(),
-  questions: z
-    .array(
-      z.object({
-        id: z.string().optional(),
-        type: z.enum(['SINGLE_LINE', 'MULTI_LINE', 'INTEGER', 'CHECKBOX']),
-        title: z.string().min(1),
-        description: z.string().optional(),
-        required: z.boolean(),
-        showInResults: z.boolean(),
-        order: z.number().optional(),
-      }),
-    )
-    .optional(),
-  templateAccesses: z
-    .array(
-      z.object({
-        userId: z.string(),
-      }),
-    )
-    .optional(),
-});
 
 router.put(
   '/:id',

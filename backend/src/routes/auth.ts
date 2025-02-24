@@ -1,20 +1,14 @@
 /// <reference path="../types/express.d.ts" />
 import { Router, Request, Response, NextFunction } from 'express';
-import { z } from 'zod';
 import supabase from '../supabase';
 import { syncUserRecord } from '../utils/syncUser';
 import { requireAuth } from '../middlewares/authMiddleware';
 import APIError from '../utils/APIError';
 import { setAuthCookies, clearAuthCookies } from '../utils/authHelpers';
 import prisma from '../prisma';
+import { loginSchema, signupSchema } from '../validators/authValidation';
 
 const router = Router();
-
-const signupSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  name: z.string().optional(),
-});
 
 router.post(
   '/signup',
@@ -54,11 +48,6 @@ router.post(
     }
   },
 );
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
 
 router.post(
   '/login',
