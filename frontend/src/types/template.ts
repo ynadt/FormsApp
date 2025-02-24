@@ -75,7 +75,7 @@ export interface TemplateUpdateData {
   topicId?: string;
   version: number;
   tags: string[];
-  questions: NewQuestion[];
+  questions: (NewQuestion & { id?: string })[];
   templateAccesses: { userId: string }[];
 }
 

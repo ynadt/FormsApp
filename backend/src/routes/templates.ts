@@ -6,7 +6,8 @@ import { requireAuth } from '../middlewares/authMiddleware';
 import { DEFAULT_LIMIT } from '../constants';
 import {
   deleteImageFromStorage,
-  sortQuestions,
+  haveQuestionsChanged,
+  isQuestionOrderChanged,
   updateTemplateAccesses,
   updateTemplateQuestions,
   updateTemplateTags,
@@ -377,25 +378,54 @@ router.put(
       );
     }
     const data = validation.data;
+
     try {
       const currentTemplate = await prisma.template.findUnique({
         where: { id },
+        include: {
+          questions: true,
+        },
       });
+
       if (!currentTemplate) {
         return next(new APIError('Template not found', 404));
       }
       if (currentTemplate.userId !== req.userId) {
         return next(new APIError('Not authorized to edit this template', 403));
       }
+
+      const existingQuestions = currentTemplate.questions;
+
+      const questionsChanged = haveQuestionsChanged(
+        data.questions,
+        existingQuestions,
+      );
+
+      const orderChanged = isQuestionOrderChanged(
+        data.questions,
+        existingQuestions,
+      );
+
+      if (questionsChanged) {
+        await prisma.$transaction([
+          prisma.answer.deleteMany({
+            where: { form: { templateId: id } },
+          }),
+          prisma.form.deleteMany({
+            where: { templateId: id },
+          }),
+        ]);
+      }
+
       if (
         currentTemplate.image_url &&
         currentTemplate.image_url !== data.image_url
       ) {
         await deleteImageFromStorage(currentTemplate.image_url);
       }
-      const sortedQuestions = data.questions
-        ? sortQuestions(data.questions)
-        : undefined;
+
+      const updatedQuestions = updateTemplateQuestions(data.questions);
+
       const updatedTemplate = await prisma.template.update({
         where: { id },
         data: {
@@ -406,12 +436,8 @@ router.put(
           topicId: data.topicId,
           version: { increment: 1 },
           tags: updateTemplateTags(data.tags),
-          questions: sortedQuestions
-            ? updateTemplateQuestions(sortedQuestions)
-            : undefined,
-          templateAccesses: data.templateAccesses
-            ? updateTemplateAccesses(data.templateAccesses)
-            : undefined,
+          questions: updatedQuestions,
+          templateAccesses: updateTemplateAccesses(data.templateAccesses),
         },
         include: {
           user: { select: { id: true, email: true, name: true } },
@@ -425,11 +451,13 @@ router.put(
           },
         },
       });
+
       const fullTemplate = {
         ...transformTemplate(updatedTemplate),
         questions: updatedTemplate.questions,
         templateAccesses: updatedTemplate.templateAccesses,
       };
+
       res.json(fullTemplate);
     } catch (error: any) {
       next(new APIError(error.message, 500));

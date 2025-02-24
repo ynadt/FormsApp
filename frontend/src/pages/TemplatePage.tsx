@@ -37,6 +37,8 @@ import TopicSelector from '../components/TopicSelector.tsx';
 import TagSelector from '../components/TagSelector.tsx';
 import Loader from '../components/Loader.tsx';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ConfirmationDialog from '../components/ConfirmationDialog.tsx';
+import { haveQuestionsChanged } from '../utils/questionUtils.ts';
 
 type FormDataType = TemplateCreateData & { version?: number };
 
@@ -67,6 +69,11 @@ const TemplatePage: React.FC = () => {
     image_url: '',
     templateAccesses: [],
   });
+
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [onConfirmCallback, setOnConfirmCallback] = useState<() => void>(
+    () => {},
+  );
   const [selectedUsers, setSelectedUsers] = useState<
     Array<{ id: string; email: string; name: string }>
   >([]);
@@ -100,6 +107,7 @@ const TemplatePage: React.FC = () => {
         public: templateData.public,
         topicId: templateData.topic?.id,
         questions: templateData.questions.map((q) => ({
+          id: q.id,
           type: q.type,
           title: q.title,
           description: q.description || '',
@@ -240,14 +248,17 @@ const TemplatePage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!formData.title.trim()) {
       toast.error('Title is required.');
       return;
     }
+
     if (formData.questions.length === 0) {
       toast.error('At least one question is required.');
       return;
     }
+
     for (const [i, q] of formData.questions.entries()) {
       if (!q.title.trim()) {
         toast.error(`Question ${i + 1}: Title is required.`);
@@ -263,11 +274,22 @@ const TemplatePage: React.FC = () => {
       return;
     }
 
-    if (isEditMode && formData.version === undefined) {
-      toast.error('Version is required for updating the template.');
-      return;
-    }
+    const questionsChanged = haveQuestionsChanged(
+      formData.questions,
+      initialFormData?.questions || [],
+    );
 
+    if (questionsChanged) {
+      setOnConfirmCallback(() => () => {
+        handleFormUpdate();
+      });
+      setShowConfirmation(true);
+    } else {
+      handleFormUpdate();
+    }
+  };
+
+  const handleFormUpdate = () => {
     if (isEditMode) {
       updateMutation.mutate(formData);
     } else {
@@ -384,6 +406,12 @@ const TemplatePage: React.FC = () => {
                 isFetching={isFetching}
               />
             )}
+
+            <Typography variant="body2" color="error" marginY={2}>
+              * Warning: Changing questions (except reordering) will delete all
+              previously submitted forms for this template.
+            </Typography>
+
             <QuestionManager
               questions={formData.questions}
               onAddQuestion={handleAddQuestion}
@@ -408,6 +436,16 @@ const TemplatePage: React.FC = () => {
           </Box>
         </CardContent>
       </Card>
+
+      <ConfirmationDialog
+        open={showConfirmation}
+        message="Changing questions will delete all previously submitted forms for this template. Do you want to proceed?"
+        onClose={() => setShowConfirmation(false)}
+        onConfirm={() => {
+          setShowConfirmation(false);
+          onConfirmCallback();
+        }}
+      />
     </DashboardLayout>
   );
 };

@@ -9,7 +9,7 @@ import {
   Chip,
   Tooltip,
 } from '@mui/material';
-import { formatQuestionType } from '../utils/formatQuestionType';
+import { formatQuestionType } from '../utils/questionUtils.ts';
 
 interface TemplateQuestionsTabProps {
   questions: Array<{
