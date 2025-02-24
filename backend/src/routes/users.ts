@@ -116,9 +116,24 @@ router.delete('/', async (req: Request, res: Response, next: NextFunction) => {
       );
     }
     const { ids } = validation.data;
-    const deleted = await prisma.user.deleteMany({
-      where: { id: { in: ids } },
-    });
+
+    await prisma.$transaction([
+      prisma.answer.deleteMany({ where: { form: { userId: { in: ids } } } }),
+      prisma.comment.deleteMany({ where: { userId: { in: ids } } }),
+      prisma.like.deleteMany({ where: { userId: { in: ids } } }),
+      prisma.like.deleteMany({ where: { template: { userId: { in: ids } } } }),
+      prisma.form.deleteMany({ where: { userId: { in: ids } } }),
+      prisma.templateAccess.deleteMany({ where: { userId: { in: ids } } }),
+      prisma.templateTag.deleteMany({
+        where: { template: { userId: { in: ids } } },
+      }),
+      prisma.question.deleteMany({
+        where: { template: { userId: { in: ids } } },
+      }),
+      prisma.template.deleteMany({ where: { userId: { in: ids } } }),
+      prisma.user.deleteMany({ where: { id: { in: ids } } }),
+    ]);
+
     const deletionResults = await Promise.all(
       ids.map(async (userId) => {
         const { error } = await supabase.auth.admin.deleteUser(userId);
@@ -135,7 +150,7 @@ router.delete('/', async (req: Request, res: Response, next: NextFunction) => {
         ),
       );
     }
-    res.json({ deletedCount: deleted.count });
+    res.json({ message: 'User and all associated data deleted successfully' });
   } catch (error: any) {
     next(new APIError(error.message, 500));
   }

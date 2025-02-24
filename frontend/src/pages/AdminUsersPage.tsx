@@ -212,7 +212,7 @@ const AdminUsersPage: React.FC = () => {
 
   const handleDelete = (selectedIds: string[]) => {
     openConfirmDialog(
-      'Are you sure you want to delete the selected users? This action cannot be undone.',
+      'Are you sure you want to delete the selected users? This action cannot be undone and all data related to the users will be deleted.',
       () => {
         deleteMutation.mutate(selectedIds, {
           onSuccess: () => {
