@@ -266,27 +266,25 @@ const TemplatePage: React.FC = () => {
       }
     }
 
-    if (
-      isEditMode &&
-      JSON.stringify(formData) === JSON.stringify(initialFormData)
-    ) {
-      toast.info('No changes detected.');
-      return;
+    if (isEditMode) {
+      if (JSON.stringify(formData) === JSON.stringify(initialFormData)) {
+        toast.info('No changes detected.');
+        return;
+      }
+
+      if (
+        initialFormData &&
+        haveQuestionsChanged(formData.questions, initialFormData.questions)
+      ) {
+        setOnConfirmCallback(() => () => {
+          handleFormUpdate();
+        });
+        setShowConfirmation(true);
+        return;
+      }
     }
 
-    const questionsChanged = haveQuestionsChanged(
-      formData.questions,
-      initialFormData?.questions || [],
-    );
-
-    if (questionsChanged) {
-      setOnConfirmCallback(() => () => {
-        handleFormUpdate();
-      });
-      setShowConfirmation(true);
-    } else {
-      handleFormUpdate();
-    }
+    handleFormUpdate();
   };
 
   const handleFormUpdate = () => {
