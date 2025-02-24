@@ -2,15 +2,15 @@ import { Router, Request, Response, NextFunction } from 'express';
 import prisma from '../prisma';
 import APIError from '../utils/APIError';
 import supabase from '../supabase';
+import { buildPaginationOptions } from '../utils/queryOptions';
 
 const router = Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const queryParam = req.query.q as string | undefined;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const offset = (page - 1) * limit;
+    const { skip, take, page, limit } = buildPaginationOptions(req.query);
+    const offset = skip;
 
     if (!queryParam || queryParam.trim() === '') {
       res.json({ data: [], total: 0, page, limit });

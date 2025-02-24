@@ -2,7 +2,6 @@ import { Router, Request, Response, NextFunction } from 'express';
 import prisma from '../prisma';
 import APIError from '../utils/APIError';
 import { requireAuth } from '../middlewares/authMiddleware';
-import { DEFAULT_LIMIT } from '../constants';
 import {
   deleteImageFromStorage,
   haveQuestionsChanged,
@@ -18,15 +17,17 @@ import {
   templateUpdateSchema,
 } from '../validators/templatesValidation';
 import { transformTemplate } from '../utils/transformers';
+import {
+  buildPaginationOptions,
+  buildSortingOptions,
+} from '../utils/queryOptions';
 
 const router = Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const sort = req.query.sort as string | undefined;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || DEFAULT_LIMIT;
-    const offset = (page - 1) * limit;
+    const { skip, take, page, limit } = buildPaginationOptions(req.query);
+    const orderBy = buildSortingOptions(req.query.sort as string);
 
     let currentUser: { id: string; role: string } | null = null;
     const token = req.cookies.access_token;
@@ -43,29 +44,15 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
     const queryOptions: any = {
       where: {},
-      skip: offset,
-      take: limit,
+      skip,
+      take,
+      orderBy,
       include: {
         user: { select: { id: true, email: true, name: true } },
         topic: true,
         tags: { include: { tag: true } },
       },
     };
-
-    if (sort) {
-      const [field, direction] = sort.split(':');
-      if (field && direction) {
-        if (field === 'authorEmail') {
-          queryOptions.orderBy = { user: { email: direction } };
-        } else {
-          queryOptions.orderBy = { [field]: direction };
-        }
-      } else if (sort === 'popular') {
-        queryOptions.orderBy = { forms: { _count: 'desc' } };
-      } else if (sort === 'newest') {
-        queryOptions.orderBy = { createdAt: 'desc' };
-      }
-    }
 
     if (!currentUser || currentUser.role !== 'ADMIN') {
       queryOptions.where.public = true;
@@ -88,38 +75,20 @@ router.get(
   requireAuth,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || DEFAULT_LIMIT;
-      const offset = (page - 1) * limit;
+      const { skip, take, page, limit } = buildPaginationOptions(req.query);
+      const orderBy = buildSortingOptions(req.query.sort as string);
 
       const queryOptions: any = {
         where: { userId: req.userId },
-        skip: offset,
-        take: limit,
+        skip,
+        take,
+        orderBy,
         include: {
           user: { select: { id: true, email: true, name: true } },
           topic: true,
           tags: { include: { tag: true } },
         },
       };
-
-      const sort = req.query.sort as string | undefined;
-      if (sort) {
-        const [field, direction] = sort.split(':');
-        if (field && direction) {
-          if (field === 'authorEmail') {
-            queryOptions.orderBy = { user: { email: direction } };
-          } else {
-            queryOptions.orderBy = { [field]: direction };
-          }
-        } else if (sort === 'popular') {
-          queryOptions.orderBy = { forms: { _count: 'desc' } };
-        } else if (sort === 'newest') {
-          queryOptions.orderBy = { createdAt: 'desc' };
-        }
-      } else {
-        queryOptions.orderBy = { createdAt: 'desc' };
-      }
 
       const totalCount = await prisma.template.count({
         where: queryOptions.where,
@@ -325,12 +294,10 @@ router.put(
       }
 
       const existingQuestions = currentTemplate.questions;
-
       const questionsChanged = haveQuestionsChanged(
         data.questions,
         existingQuestions,
       );
-
       const orderChanged = isQuestionOrderChanged(
         data.questions,
         existingQuestions,
@@ -338,12 +305,8 @@ router.put(
 
       if (questionsChanged) {
         await prisma.$transaction([
-          prisma.answer.deleteMany({
-            where: { form: { templateId: id } },
-          }),
-          prisma.form.deleteMany({
-            where: { templateId: id },
-          }),
+          prisma.answer.deleteMany({ where: { form: { templateId: id } } }),
+          prisma.form.deleteMany({ where: { templateId: id } }),
         ]);
       }
 

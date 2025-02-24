@@ -2,7 +2,6 @@ import { Router, Request, Response, NextFunction } from 'express';
 import prisma from '../prisma';
 import { requireAuth } from '../middlewares/authMiddleware';
 import APIError from '../utils/APIError';
-import { DEFAULT_LIMIT } from '../constants';
 import supabase from '../supabase';
 import {
   bulkDeleteSchema,
@@ -10,6 +9,10 @@ import {
   updateFormSchema,
 } from '../validators/formsValidation';
 import { transformForm } from '../utils/transformers';
+import {
+  buildPaginationOptions,
+  buildSortingOptions,
+} from '../utils/queryOptions';
 
 const router = Router();
 
@@ -17,14 +20,11 @@ const router = Router();
  * GET /forms
  * - For admins: returns all forms.
  * - For non-admin/unauthenticated: returns only forms whose associated template is public.
- * Returns a paginated list of transformed forms.
  */
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const sort = req.query.sort as string | undefined;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || DEFAULT_LIMIT;
-    const offset = (page - 1) * limit;
+    const { skip, take, page, limit } = buildPaginationOptions(req.query);
+    const orderBy = buildSortingOptions(req.query.sort as string);
 
     let currentUser: { id: string; role: string } | null = null;
     const token = req.cookies.access_token;
@@ -41,8 +41,9 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
     const queryOptions: any = {
       where: {},
-      skip: offset,
-      take: limit,
+      skip,
+      take,
+      orderBy,
       include: {
         user: { select: { id: true, email: true, name: true } },
         template: {
@@ -56,25 +57,6 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
       },
     };
 
-    if (sort) {
-      const [field, direction] = sort.split(':');
-      if (field && direction) {
-        if (field === 'authorEmail') {
-          queryOptions.orderBy = { user: { email: direction } };
-        } else if (field === 'templateTitle') {
-          queryOptions.orderBy = { template: { title: direction } };
-        } else {
-          queryOptions.orderBy = { [field]: direction };
-        }
-      } else if (sort === 'popular') {
-        queryOptions.orderBy = { answers: { _count: 'desc' } };
-      } else if (sort === 'newest') {
-        queryOptions.orderBy = { createdAt: 'desc' };
-      }
-    } else {
-      queryOptions.orderBy = { createdAt: 'desc' };
-    }
-
     if (!currentUser || currentUser.role !== 'ADMIN') {
       queryOptions.where = {
         ...queryOptions.where,
@@ -82,9 +64,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
       };
     }
 
-    const totalCount = await prisma.form.count({
-      where: queryOptions.where,
-    });
+    const totalCount = await prisma.form.count({ where: queryOptions.where });
     const forms = await prisma.form.findMany(queryOptions);
     const transformedForms = forms.map(transformForm);
 
@@ -99,16 +79,16 @@ router.get(
   requireAuth,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || DEFAULT_LIMIT;
-      const offset = (page - 1) * limit;
+      const { skip, take, page, limit } = buildPaginationOptions(req.query);
+      const orderBy = buildSortingOptions(req.query.sort as string);
 
       const queryOptions: any = {
         where: {
           OR: [{ userId: req.userId }, { template: { userId: req.userId } }],
         },
-        skip: offset,
-        take: limit,
+        skip,
+        take,
+        orderBy,
         include: {
           user: { select: { id: true, email: true, name: true } },
           template: {
@@ -122,29 +102,7 @@ router.get(
         },
       };
 
-      const sort = req.query.sort as string | undefined;
-      if (sort) {
-        const [field, direction] = sort.split(':');
-        if (field && direction) {
-          if (field === 'authorEmail') {
-            queryOptions.orderBy = { user: { email: direction } };
-          } else if (field === 'templateTitle') {
-            queryOptions.orderBy = { template: { title: direction } };
-          } else {
-            queryOptions.orderBy = { [field]: direction };
-          }
-        } else if (sort === 'popular') {
-          queryOptions.orderBy = { answers: { _count: 'desc' } };
-        } else if (sort === 'newest') {
-          queryOptions.orderBy = { createdAt: 'desc' };
-        }
-      } else {
-        queryOptions.orderBy = { createdAt: 'desc' };
-      }
-
-      const totalCount = await prisma.form.count({
-        where: queryOptions.where,
-      });
+      const totalCount = await prisma.form.count({ where: queryOptions.where });
       const forms = await prisma.form.findMany(queryOptions);
       const transformedForms = forms.map(transformForm);
 

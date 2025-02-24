@@ -23,7 +23,7 @@ const SearchResultsPage: React.FC = () => {
   const query = queryParams.get('q') || '';
   const initialPage = parseInt(queryParams.get('page') || '1', 10);
   const [page, setPage] = useState(initialPage);
-  const limit = 10;
+  const limit = 20;
 
   const { data, isLoading, error } = useQuery<TemplateListResponse>({
     queryKey: ['search', query, page],

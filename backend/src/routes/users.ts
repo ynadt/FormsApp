@@ -8,23 +8,25 @@ import {
   bulkUpdateRoleSchema,
 } from '../validators/usersValidation';
 import { bulkDeleteSchema } from '../validators/formsValidation';
+import {
+  buildPaginationOptions,
+  buildSortingOptions,
+} from '../utils/queryOptions';
 
 const router = Router();
-const DEFAULT_LIMIT = 10;
 
 router.use(requireAuth);
 router.use(adminOnly);
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || DEFAULT_LIMIT;
-    const offset = (page - 1) * limit;
-    const sort = req.query.sort as string | undefined;
+    const { skip, take, page, limit } = buildPaginationOptions(req.query);
+    const orderBy = buildSortingOptions(req.query.sort as string);
 
     const queryOptions: any = {
-      skip: offset,
-      take: limit,
+      skip,
+      take,
+      orderBy,
       select: {
         id: true,
         email: true,
@@ -33,13 +35,6 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
         blocked: true,
       },
     };
-
-    if (sort) {
-      const [field, direction] = sort.split(':');
-      if (field && direction) {
-        queryOptions.orderBy = { [field]: direction };
-      }
-    }
 
     const totalCount = await prisma.user.count();
     const users = await prisma.user.findMany(queryOptions);

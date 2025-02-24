@@ -5,7 +5,7 @@ import { UserListResponse } from '../types/user';
 
 export const fetchUsers = async ({
   page = 1,
-  limit = 10,
+  limit = 20,
   sort = '',
 }: {
   page?: number;
