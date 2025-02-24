@@ -17,24 +17,9 @@ import {
   templateCreateSchema,
   templateUpdateSchema,
 } from '../validators/templatesValidation';
+import { transformTemplate } from '../utils/transformers';
 
 const router = Router();
-
-const transformTemplate = (tmpl: any) => ({
-  id: tmpl.id,
-  title: tmpl.title,
-  description: tmpl.description,
-  image_url: tmpl.image_url,
-  public: tmpl.public,
-  createdAt: tmpl.createdAt.toISOString(),
-  updatedAt: tmpl.updatedAt.toISOString(),
-  version: tmpl.version,
-  authorId: tmpl.user?.id || '',
-  authorEmail: tmpl.user?.email || '',
-  authorName: tmpl.user?.name || '',
-  topic: tmpl.topic ? { id: tmpl.topic.id, name: tmpl.topic.name } : null,
-  tags: tmpl.tags?.map((tt: any) => ({ id: tt.id, name: tt.tag.name })) || [],
-});
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
