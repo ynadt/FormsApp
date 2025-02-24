@@ -73,7 +73,7 @@ const TemplateViewPage: React.FC = () => {
     queryKey: ['forms', id],
     queryFn: () => fetchFormsByTemplateId(id),
     enabled: Boolean(
-      template && canEdit(template, currentUserId, isAdmin) && tabIndex === 1,
+      template && canEdit(template, currentUserId, isAdmin) && tabIndex === 2,
     ),
   });
 
@@ -85,7 +85,7 @@ const TemplateViewPage: React.FC = () => {
     queryKey: ['analytics', id],
     queryFn: () => fetchAnalyticsByTemplateId(id),
     enabled: Boolean(
-      template && canEdit(template, currentUserId, isAdmin) && tabIndex === 2,
+      template && canEdit(template, currentUserId, isAdmin) && tabIndex === 3,
     ),
   });
 
