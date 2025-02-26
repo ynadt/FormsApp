@@ -1,8 +1,8 @@
 import React from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { getTheme } from './theme';
 import { AppProvider } from '@toolpad/core/AppProvider';
+import { createTheme } from '@mui/material/styles';
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
 import AdminUsersPage from './pages/AdminUsersPage';
@@ -23,7 +23,11 @@ import NotFoundPage from './pages/NotFoundPage.tsx';
 
 const AppContent: React.FC = () => {
   const { mode } = useThemeCustom();
-  const theme = getTheme(mode);
+  const theme = createTheme({
+    palette: {
+      mode,
+    },
+  });
 
   return (
     <ThemeProvider theme={theme}>

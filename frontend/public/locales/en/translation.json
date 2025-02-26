@@ -1,0 +1,41 @@
+{
+  "appLayout": {
+    "toggleTheme": "Toggle Theme",
+    "languageSettings": "Language Settings",
+    "logout": "Logout",
+    "loginRegister": "Login / Register",
+    "home": "Home",
+    "users": "Users",
+    "adminTemplatesManagement": "Admin Templates Management",
+    "adminFormsManagement": "Admin Forms Management",
+    "adminUsersManagement": "Admin Users Management",
+    "myTemplates": "My Templates",
+    "myForms": "My Forms",
+    "admin": "Admin",
+    "user": "User",
+    "search": "Search...",
+    "searchTemplates": "Search Templates..."
+  },
+  "home": {
+    "title": "Welcome to Customizable Forms",
+    "description": "Explore our templates, search for what you need, and get started. Whether you are a guest, a regular user, or an admin, enjoy a unified experience.",
+    "latestTemplates": "Latest Templates",
+    "mostPopularTemplates": "Most Popular Templates",
+    "tagCloud": "Tag Cloud"
+  },
+  "adminForms": {
+    "title": "Admin - Form Management",
+    "subtitle": "Manage forms of all users"
+  },
+  "auth": {
+    "authErrorEmail": "Please enter a valid email address.",
+    "authErrorPassword": "Password must be at least 6 characters long.",
+    "loginError": "Login failed.",
+    "registerError": "Registration failed.",
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name"
+  }
+}

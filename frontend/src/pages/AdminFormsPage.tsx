@@ -19,9 +19,11 @@ import Loader from '../components/Loader.tsx';
 import { useConfirmationDialog } from '../hooks/useConfirmationDialog';
 import { useSorting } from '../hooks/useSorting';
 import adminFormsColumns from '../constants/adminFormsColumns.ts';
+import { useTranslation } from 'react-i18next';
 
 const AdminFormsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const {
     confirmDialogOpen,
@@ -116,7 +118,7 @@ const AdminFormsPage: React.FC = () => {
           backgroundColor: 'background.default',
         }}
       >
-        {/* Form Author Email */}
+        {/* Form Author Name */}
         <Typography variant="subtitle1" fontWeight="bold">
           Form Author Name:
         </Typography>
@@ -209,8 +211,8 @@ const AdminFormsPage: React.FC = () => {
         sx={{ p: 2, position: 'relative', width: '100%', overflowX: 'auto' }}
       >
         <CustomPageHeader
-          title="Admin - Form Management"
-          subtitle="Manage forms of all users"
+          title={t('adminForms.title')}
+          subtitle={t('adminForms.subtitle')}
         />
         <MaterialReactTable table={table} />
         {(deleteMutation.isPending || isFetching) && <Loader />}

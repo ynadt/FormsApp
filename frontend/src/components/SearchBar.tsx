@@ -3,6 +3,7 @@ import { IconButton, InputBase } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material/styles';
+import { useTranslation } from 'react-i18next';
 
 const SearchContainer = styled('form')(({ theme }) => ({
   position: 'relative',
@@ -26,6 +27,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onSearchSubmit,
 }) => {
   const [showSearch, setShowSearch] = React.useState(false);
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,7 +43,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           <SearchContainer onSubmit={handleSubmit}>
             <InputBase
               name="search"
-              placeholder="Search…"
+              placeholder={t('appLayout.search')}
               sx={{ ml: 1, flex: 1 }}
             />
             <IconButton color="inherit" onClick={() => setShowSearch(false)}>
@@ -62,7 +64,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <SearchIcon />
       <InputBase
         name="search"
-        placeholder="Search templates…"
+        placeholder={t('appLayout.searchTemplates')}
         sx={{ ml: 1, flex: 1 }}
       />
     </SearchContainer>

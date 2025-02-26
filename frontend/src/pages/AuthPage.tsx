@@ -11,11 +11,13 @@ import {
   IconButton,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { loginUser, registerUser } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
 import { AuthResponse, LoginVars } from '../types/auth';
+import { validateEmail, validatePassword } from '../utils/validationUtils.ts';
+import { useTranslation } from 'react-i18next';
 
 export const AuthPage: FC = () => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -26,26 +28,18 @@ export const AuthPage: FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { setUser } = useAuthStore();
   const navigate = useNavigate();
-
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 6;
-  };
+  const { t } = useTranslation();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!validateEmail(email)) {
-      setAuthError('Please enter a valid email address.');
+      setAuthError(`${t('auth.authErrorEmail')}`);
       return;
     }
 
     if (!validatePassword(password)) {
-      setAuthError('Password must be at least 6 characters long.');
+      setAuthError(`${t('auth.authErrorPassword')}`);
       return;
     }
 
@@ -56,48 +50,33 @@ export const AuthPage: FC = () => {
     }
   };
 
-  const loginMutation: UseMutationResult<
-    AuthResponse,
-    Error,
-    LoginVars,
-    unknown
-  > = useMutation({
+  const handleAuthSuccess = (data: AuthResponse) => {
+    if (data.supabase && data.supabase.user && data.user) {
+      setUser({
+        id: data.supabase.user.id,
+        email: data.supabase.user.email,
+        name: data.user.name,
+        role: data.user.role || 'USER',
+      });
+      navigate('/');
+    }
+  };
+
+  const handleAuthError = (error: Error, errorMessage: string) => {
+    setAuthError(error.message || t(errorMessage));
+  };
+
+  const loginMutation = useMutation({
     mutationFn: ({ email, password }: LoginVars) => loginUser(email, password),
-    onSuccess: (data) => {
-      if (data.supabase && data.supabase.user && data.user) {
-        setUser({
-          id: data.supabase.user.id,
-          email: data.supabase.user.email,
-          name: data.user.name,
-          role: data.user.role,
-        });
-        navigate('/');
-      }
-    },
-    onError: (error: Error) => setAuthError(error.message || 'Login failed'),
+    onSuccess: handleAuthSuccess,
+    onError: (error: Error) => handleAuthError(error, 'auth.loginError'),
   });
 
-  const registerMutation: UseMutationResult<
-    AuthResponse,
-    Error,
-    LoginVars & { name?: string },
-    unknown
-  > = useMutation({
+  const registerMutation = useMutation({
     mutationFn: ({ email, password, name }: LoginVars & { name?: string }) =>
       registerUser(email, password, name),
-    onSuccess: (data) => {
-      if (data.supabase && data.supabase.user && data.user) {
-        setUser({
-          id: data.supabase.user.id,
-          email: data.supabase.user.email,
-          name: data.user.name,
-          role: data.user.role,
-        });
-        navigate('/');
-      }
-    },
-    onError: (error: Error) =>
-      setAuthError(error.message || 'Registration failed'),
+    onSuccess: handleAuthSuccess,
+    onError: (error: Error) => handleAuthError(error, 'auth.registerError'),
   });
 
   return (
@@ -113,13 +92,13 @@ export const AuthPage: FC = () => {
           fullWidth
           sx={{ mb: 2 }}
         >
-          <ToggleButton value="login">Login</ToggleButton>
-          <ToggleButton value="register">Register</ToggleButton>
+          <ToggleButton value="login">{t('auth.login')}</ToggleButton>
+          <ToggleButton value="register">{t('auth.register')}</ToggleButton>
         </ToggleButtonGroup>
         <Box component="form" onSubmit={handleSubmit}>
           {mode === 'register' && (
             <TextField
-              label="Name"
+              label={t('auth.name')}
               type="text"
               fullWidth
               value={name}
@@ -129,7 +108,7 @@ export const AuthPage: FC = () => {
             />
           )}
           <TextField
-            label="Email"
+            label={t('auth.email')}
             type="email"
             fullWidth
             required
@@ -139,7 +118,7 @@ export const AuthPage: FC = () => {
             autoComplete="email"
           />
           <TextField
-            label="Password"
+            label={t('auth.password')}
             type={showPassword ? 'text' : 'password'}
             fullWidth
             required
@@ -175,7 +154,7 @@ export const AuthPage: FC = () => {
             fullWidth
             disabled={loginMutation.isPending || registerMutation.isPending}
           >
-            {mode === 'login' ? 'Login' : 'Register'}
+            {mode === 'login' ? t('auth.login') : t('auth.register')}
           </Button>
         </Box>
       </Paper>

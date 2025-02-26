@@ -29,6 +29,7 @@ import { useThemeCustom } from '../ThemeContext';
 import SearchBar from './SearchBar';
 import ProfileLanguageMenu from './ProfileLanguageMenu';
 import { appBarHeight, drawerWidth } from '../constants/constants.ts';
+import { useTranslation } from 'react-i18next';
 
 const drawerPaperStyles = {
   width: drawerWidth,
@@ -60,6 +61,7 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('md'));
@@ -108,9 +110,30 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const navItems = getNavItems(user?.role);
   const dashboardLabel = user
     ? user.role === 'ADMIN'
-      ? `Admin: ${user.email}`
-      : `Dashboard: ${user.email}`
+      ? `${t('appLayout.admin')} ${user.email}`
+      : `${t('appLayout.user')} ${user.email}`
     : '';
+
+  const renderNavList = () => (
+    <List>
+      {navItems.map((item) => (
+        <React.Fragment key={item.label}>
+          <ListItem disablePadding>
+            <Tooltip title={t(item.label)} placement="right">
+              <ListItemButton onClick={() => navigate(item.path)}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+          {user?.role === 'ADMIN' &&
+            (item.label === t('appLayout.home') ||
+              item.label === t('appLayout.adminFormsManagement')) && (
+              <Divider />
+            )}
+        </React.Fragment>
+      ))}
+    </List>
+  );
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -188,59 +211,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </Toolbar>
       </MyAppBar>
 
-      {/* Drawer: permanent on large screens, temporary on small screens */}
-      {isLargeScreen ? (
-        <Drawer
-          variant="permanent"
-          open
-          sx={{ '& .MuiDrawer-paper': drawerPaperStyles }}
-        >
-          <Divider />
-          <List>
-            {navItems.map((item) => (
-              <React.Fragment key={item.label}>
-                <ListItem disablePadding>
-                  <Tooltip title={item.label} placement="right">
-                    <ListItemButton onClick={() => navigate(item.path)}>
-                      <ListItemIcon>{item.icon}</ListItemIcon>
-                    </ListItemButton>
-                  </Tooltip>
-                </ListItem>
-                {user?.role === 'ADMIN' &&
-                  (item.label === 'Home' ||
-                    item.label === 'Admin Forms Management') && <Divider />}
-              </React.Fragment>
-            ))}
-          </List>
-        </Drawer>
-      ) : (
-        <Drawer
-          variant="temporary"
-          open={drawerOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{ '& .MuiDrawer-paper': drawerPaperStyles }}
-        >
-          <Divider />
-          <List>
-            {navItems.map((item) => (
-              <React.Fragment key={item.label}>
-                <ListItem disablePadding>
-                  <Tooltip title={item.label} placement="right">
-                    <ListItemButton onClick={() => navigate(item.path)}>
-                      <ListItemIcon>{item.icon}</ListItemIcon>
-                    </ListItemButton>
-                  </Tooltip>
-                </ListItem>
-                {user?.role === 'ADMIN' &&
-                  (item.label === 'Home' || item.label === 'Forms') && (
-                    <Divider />
-                  )}
-              </React.Fragment>
-            ))}
-          </List>
-        </Drawer>
-      )}
+      {/* Drawer for navigation */}
+      <Drawer
+        variant={isLargeScreen ? 'permanent' : 'temporary'}
+        open={isLargeScreen || drawerOpen}
+        onClose={!isLargeScreen ? handleDrawerToggle : undefined}
+        ModalProps={{ keepMounted: true }}
+        sx={{ '& .MuiDrawer-paper': drawerPaperStyles }}
+      >
+        <Divider />
+        {renderNavList()}
+      </Drawer>
 
       {/* Main content area; left margin if permanent drawer is visible */}
       <Main shift={isLargeScreen}>
