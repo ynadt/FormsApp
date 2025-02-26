@@ -5,6 +5,7 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import { useTranslation } from 'react-i18next';
 
 export interface NavItem {
   label: string;
@@ -13,34 +14,52 @@ export interface NavItem {
 }
 
 export const getNavItems = (role?: string): NavItem[] => {
+  const { t } = useTranslation();
+
   if (!role) {
-    return [{ label: 'Home', icon: <HomeIcon />, path: '/' }];
+    return [{ label: t('appLayout.home'), icon: <HomeIcon />, path: '/' }];
   }
   if (role === 'ADMIN') {
     return [
-      { label: 'Home', icon: <HomeIcon />, path: '/' },
-      { label: 'Users', icon: <PeopleIcon />, path: '/admin/users' },
+      { label: t('appLayout.home'), icon: <HomeIcon />, path: '/' },
       {
-        label: 'Admin Templates Management',
+        label: t('appLayout.users'),
+        icon: <PeopleIcon />,
+        path: '/admin/users',
+      },
+      {
+        label: t('appLayout.adminTemplatesManagement'),
         icon: <StickyNote2Icon />,
         path: '/admin/templates',
       },
       {
-        label: 'Admin Forms Management',
+        label: t('appLayout.adminFormsManagement'),
         icon: <AssignmentIcon />,
         path: '/admin/forms',
       },
-      { label: 'My Templates', icon: <QuizIcon />, path: '/my-templates' },
       {
-        label: 'My Forms',
+        label: t('appLayout.myTemplates'),
+        icon: <QuizIcon />,
+        path: '/my-templates',
+      },
+      {
+        label: t('appLayout.myForms'),
         icon: <AssignmentTurnedInIcon />,
         path: '/my-forms',
       },
     ];
   }
   return [
-    { label: 'Home', icon: <HomeIcon />, path: '/' },
-    { label: 'My Templates', icon: <QuizIcon />, path: '/my-templates' },
-    { label: 'My Forms', icon: <AssignmentTurnedInIcon />, path: '/my-forms' },
+    { label: t('appLayout.home'), icon: <HomeIcon />, path: '/' },
+    {
+      label: t('appLayout.myTemplates'),
+      icon: <QuizIcon />,
+      path: '/my-templates',
+    },
+    {
+      label: t('appLayout.myForms'),
+      icon: <AssignmentTurnedInIcon />,
+      path: '/my-forms',
+    },
   ];
 };

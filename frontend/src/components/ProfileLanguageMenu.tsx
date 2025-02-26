@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { useTranslation } from 'react-i18next';
 
 interface ProfileLanguageMenuProps {
   profileAnchorEl: HTMLElement | null;
@@ -30,6 +31,13 @@ const ProfileLanguageMenu: React.FC<ProfileLanguageMenuProps> = ({
   logoutDisabled,
   userExists,
 }) => {
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    onLangMenuClose();
+  };
+
   return (
     <>
       <Menu
@@ -40,16 +48,15 @@ const ProfileLanguageMenu: React.FC<ProfileLanguageMenuProps> = ({
         open={Boolean(profileAnchorEl)}
         onClose={onProfileMenuClose}
       >
-        {/* On small screens, include theme and language settings inside profile menu */}
         {isSmallScreen && (
           <>
             <MenuItem onClick={toggleTheme}>
               <Brightness4Icon sx={{ mr: 1 }} />
-              Toggle Theme
+              {t('appLayout.toggleTheme')}
             </MenuItem>
             <MenuItem onClick={onLangMenuOpen}>
               <SettingsIcon sx={{ mr: 1 }} />
-              Language Settings
+              {t('appLayout.languageSettings')}
             </MenuItem>
           </>
         )}
@@ -61,7 +68,7 @@ const ProfileLanguageMenu: React.FC<ProfileLanguageMenuProps> = ({
             }}
             disabled={logoutDisabled}
           >
-            Logout
+            {t('appLayout.logout')}
           </MenuItem>
         ) : (
           <MenuItem
@@ -70,12 +77,11 @@ const ProfileLanguageMenu: React.FC<ProfileLanguageMenuProps> = ({
               onLogin();
             }}
           >
-            Login / Register
+            {t('appLayout.loginRegister')}
           </MenuItem>
         )}
       </Menu>
 
-      {/* Language Menu (for non-small screens) */}
       <Menu
         anchorEl={langAnchorEl}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -84,22 +90,8 @@ const ProfileLanguageMenu: React.FC<ProfileLanguageMenuProps> = ({
         open={Boolean(langAnchorEl)}
         onClose={onLangMenuClose}
       >
-        <MenuItem
-          onClick={() => {
-            onLangMenuClose();
-            console.log('Switch to EN');
-          }}
-        >
-          EN
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            onLangMenuClose();
-            console.log('Switch to RU');
-          }}
-        >
-          RU
-        </MenuItem>
+        <MenuItem onClick={() => changeLanguage('en')}>EN</MenuItem>
+        <MenuItem onClick={() => changeLanguage('ru')}>RU</MenuItem>
       </Menu>
     </>
   );

@@ -9,8 +9,11 @@ import TagCloud from '../components/TagCloud';
 import { TemplateListResponse } from '../types/template';
 import CustomPageHeader from '../components/CustomPageHeader.tsx';
 import { headingStyles } from '../styles/typographyStyles.ts';
+import { useTranslation } from 'react-i18next';
 
 const HomePage: React.FC = () => {
+  const { t } = useTranslation();
+
   const {
     data: latestTemplates,
     isLoading: isLatestLoading,
@@ -42,12 +45,12 @@ const HomePage: React.FC = () => {
     <DashboardLayout>
       <Box sx={{ p: 3 }}>
         <CustomPageHeader
-          title="Welcome to Customizable Forms"
-          subtitle="Explore our templates, search for what you need, and get started. Whether you are a guest, a regular user, or an admin, enjoy a unified experience."
+          title={t('home.title')}
+          subtitle={t('home.description')}
         />
 
         <TemplateSlider
-          title="Latest Templates"
+          title={t('home.latestTemplates')}
           templates={latestTemplates?.data || []}
           isLoading={isLatestLoading}
           error={latestError}
@@ -56,7 +59,7 @@ const HomePage: React.FC = () => {
         <Divider sx={{ my: 3 }} />
 
         <TemplateSlider
-          title="Most Popular Templates"
+          title={t('home.mostPopularTemplates')}
           templates={popularTemplates?.data || []}
           isLoading={isPopularLoading}
           error={popularError}
@@ -65,7 +68,7 @@ const HomePage: React.FC = () => {
         <Divider sx={{ my: 3 }} />
 
         <Typography variant="h5" gutterBottom sx={headingStyles}>
-          Tag Cloud
+          {t('home.tagCloud')}
         </Typography>
         <TagCloud
           tags={tagsData || []}
