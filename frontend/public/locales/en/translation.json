@@ -12,7 +12,9 @@
     "myTemplates": "My Templates",
     "myForms": "My Forms",
     "admin": "Admin",
-    "user": "User"
+    "user": "User",
+    "search": "Search...",
+    "searchTemplates": "Search Templates..."
   },
   "home": {
     "title": "Welcome to Customizable Forms",

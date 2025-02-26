@@ -12,7 +12,9 @@
     "myTemplates": "Мои шаблоны",
     "myForms": "Мои формы",
     "admin": "Админ",
-    "user": "Пользователь"
+    "user": "Пользователь",
+    "search": "Поиск...",
+    "searchTemplates": "Поиск шаблонов..."
   },
   "home": {
     "title": "Добро пожаловать в Customizable Forms",
