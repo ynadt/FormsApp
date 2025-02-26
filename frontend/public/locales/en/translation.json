@@ -24,5 +24,16 @@
   "adminForms": {
     "title": "Admin - Form Management",
     "subtitle": "Manage forms of all users"
+  },
+  "auth": {
+    "authErrorEmail": "Please enter a valid email address.",
+    "authErrorPassword": "Password must be at least 6 characters long.",
+    "loginError": "Login failed.",
+    "registerError": "Registration failed.",
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name"
   }
 }
