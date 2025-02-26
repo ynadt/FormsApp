@@ -11,7 +11,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { loginUser, registerUser } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
@@ -50,49 +50,33 @@ export const AuthPage: FC = () => {
     }
   };
 
-  const loginMutation: UseMutationResult<
-    AuthResponse,
-    Error,
-    LoginVars,
-    unknown
-  > = useMutation({
+  const handleAuthSuccess = (data: AuthResponse) => {
+    if (data.supabase && data.supabase.user && data.user) {
+      setUser({
+        id: data.supabase.user.id,
+        email: data.supabase.user.email,
+        name: data.user.name,
+        role: data.user.role || 'USER',
+      });
+      navigate('/');
+    }
+  };
+
+  const handleAuthError = (error: Error, errorMessage: string) => {
+    setAuthError(error.message || t(errorMessage));
+  };
+
+  const loginMutation = useMutation({
     mutationFn: ({ email, password }: LoginVars) => loginUser(email, password),
-    onSuccess: (data) => {
-      if (data.supabase && data.supabase.user && data.user) {
-        setUser({
-          id: data.supabase.user.id,
-          email: data.supabase.user.email,
-          name: data.user.name,
-          role: data.user.role,
-        });
-        navigate('/');
-      }
-    },
-    onError: (error: Error) =>
-      setAuthError(error.message || `${t('auth.loginError')}`),
+    onSuccess: handleAuthSuccess,
+    onError: (error: Error) => handleAuthError(error, 'auth.loginError'),
   });
 
-  const registerMutation: UseMutationResult<
-    AuthResponse,
-    Error,
-    LoginVars & { name?: string },
-    unknown
-  > = useMutation({
+  const registerMutation = useMutation({
     mutationFn: ({ email, password, name }: LoginVars & { name?: string }) =>
       registerUser(email, password, name),
-    onSuccess: (data) => {
-      if (data.supabase && data.supabase.user && data.user) {
-        setUser({
-          id: data.supabase.user.id,
-          email: data.supabase.user.email,
-          name: data.user.name,
-          role: data.user.role,
-        });
-        navigate('/');
-      }
-    },
-    onError: (error: Error) =>
-      setAuthError(error.message || `${t('auth.registerError')}`),
+    onSuccess: handleAuthSuccess,
+    onError: (error: Error) => handleAuthError(error, 'auth.registerError'),
   });
 
   return (
