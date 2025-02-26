@@ -23,7 +23,7 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { getNavItems } from '../utils/drawerNavigationUtil.tsx';
 import { useAuthStore } from '../store/authStore';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { logoutUser } from '../api/auth';
 import { useThemeCustom } from '../ThemeContext';
 import SearchBar from './SearchBar';
@@ -63,6 +63,7 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('md'));
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -84,6 +85,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     mutationFn: async () => await logoutUser(),
     onSuccess: () => {
       clearUser();
+      queryClient.invalidateQueries();
       navigate('/');
     },
   });
