@@ -11,7 +11,6 @@ function getInitialTheme(): 'light' | 'dark' {
       ? 'dark'
       : 'light';
   }
-  console.log('No window object found; defaulting to light theme');
   return 'light';
 }
 
