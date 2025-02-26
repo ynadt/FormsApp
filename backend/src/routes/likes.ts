@@ -17,7 +17,7 @@ router.post(
         where: { templateId, userId },
       });
       if (existing) {
-        next(new APIError('Already liked', 400));
+        return next(new APIError('Already liked', 400));
       }
       const like = await prisma.like.create({
         data: { templateId, userId },
@@ -79,6 +79,7 @@ router.get(
 
       if (!userId) {
         res.json({ count, liked: false });
+        return;
       }
 
       const likedRecord = await prisma.like.findFirst({
