@@ -42,7 +42,6 @@ const MyAppBar = styled(AppBar)(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
 }));
 
-// Main content area with left margin if permanent drawer is visible
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'shift' })<{
   shift: boolean;
 }>(({ theme, shift }) => ({
@@ -128,7 +127,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             </Tooltip>
           </ListItem>
           {user?.role === 'ADMIN' &&
-            (item.label === t('appLayout.home') ||
+            (item.label === t('appLayout.profile') ||
               item.label === t('appLayout.adminFormsManagement')) && (
               <Divider />
             )}

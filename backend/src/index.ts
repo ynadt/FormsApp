@@ -17,6 +17,7 @@ import tagsRoutes from './routes/tags';
 import usersAutocompleteRoutes from './routes/usersAutocomplete';
 import searchRoutes from './routes/search';
 import commentsRoutes from './routes/comments';
+import salesforceRoutes from './routes/salesforce';
 import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/likes', likesRoutes);
 app.use('/template-access', templateAccessRoutes);
 app.use('/templates', templatesRoutes);
 app.use('/users', usersRoutes);
+app.use('/salesforce', salesforceRoutes);
 
 app.use(errorHandler);
 

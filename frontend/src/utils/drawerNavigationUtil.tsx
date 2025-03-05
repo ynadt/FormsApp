@@ -6,6 +6,7 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useTranslation } from 'react-i18next';
+import PersonIcon from '@mui/icons-material/Person';
 
 export interface NavItem {
   label: string;
@@ -22,6 +23,7 @@ export const getNavItems = (role?: string): NavItem[] => {
   if (role === 'ADMIN') {
     return [
       { label: t('appLayout.home'), icon: <HomeIcon />, path: '/' },
+      { label: t('appLayout.profile'), icon: <PersonIcon />, path: '/profile' },
       {
         label: t('appLayout.users'),
         icon: <PeopleIcon />,
@@ -51,6 +53,7 @@ export const getNavItems = (role?: string): NavItem[] => {
   }
   return [
     { label: t('appLayout.home'), icon: <HomeIcon />, path: '/' },
+    { label: t('appLayout.profile'), icon: <PersonIcon />, path: '/profile' },
     {
       label: t('appLayout.myTemplates'),
       icon: <QuizIcon />,
