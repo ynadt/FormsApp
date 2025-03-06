@@ -20,6 +20,7 @@ import AdminFormsPage from './pages/AdminFormsPage.tsx';
 import MyFormsPage from './pages/MyFormsPage.tsx';
 import SearchResultsPage from './pages/SearchResultsPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
+import ProfilePage from './pages/ProfilePage.tsx';
 
 const AppContent: React.FC = () => {
   const { mode } = useThemeCustom();
@@ -38,6 +39,15 @@ const AppContent: React.FC = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/search" element={<SearchResultsPage />} />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/admin/users"

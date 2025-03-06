@@ -36,6 +36,9 @@ model User {
   comments         Comment[]
   likes            Like[]
 
+  salesforceAccountId String?
+  salesforceContactId String?
+
   @@index([email])
   @@index([name])
 }

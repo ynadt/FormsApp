@@ -5,6 +5,7 @@
     "logout": "Logout",
     "loginRegister": "Login / Register",
     "home": "Home",
+    "profile": "Profile",
     "users": "Users",
     "adminTemplatesManagement": "Admin Templates Management",
     "adminFormsManagement": "Admin Forms Management",
@@ -22,6 +23,16 @@
     "latestTemplates": "Latest Templates",
     "mostPopularTemplates": "Most Popular Templates",
     "tagCloud": "Tag Cloud"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account",
+    "userInfo": "User Info",
+    "notAvailable": "Not available",
+    "name": "Name",
+    "email": "Email",
+    "syncSuccess": "Account and Contact synced successfully!",
+    "syncError": "Failed to sync with Salesforce. Please try again."
   },
   "adminForms": {
     "title": "Admin - Form Management",
